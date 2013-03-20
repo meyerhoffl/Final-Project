@@ -105,15 +105,60 @@ $(document).ready(function() {
                 
                 for (var j = 0; j < results.length; j++) {
                     
+                    // outputDiv.innerHTML += origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>';
                     outputDiv.innerHTML += origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>';
-                
+
+                    
+                    sortDistance(response.rows[i].elements[j].distance.text, destinations[j] + " " +response.rows[i].elements[j].distance.text);
+
                 }
+                // console.log(results);
             }
 
 
         }
-    console.log(response.rows[0].elements[0].distance.text);
+    
     }
+
+// **************************************** Display routes by Distance **************************************************
+
+function sortDistance(x, y){
+   
+
+        if (parseFloat(x)<1){
+            
+            console.log(y);
+        }
+
+        else if(parseFloat(x)>=1 && parseFloat(x)<3){
+            console.log(y);
+           
+        }
+
+        else{
+            console.log(y);
+        }
+
+
+}//end sortDistance
+
+// function evalDistance(distance){
+
+//     var distSelect = $("#distance option: selected").val();
+//     if(distSelect == "oneMile"){
+       
+//         }
+//     }
+//     else if (distSelect == "1to3Mile"){
+//         //print routes 1-3 miles
+//     }
+
+//     else{
+//         //print routes over 3
+//     }
+
+// };// end eval distance
+
 
 // **************************************** Clear Page ******************************************************************
 
