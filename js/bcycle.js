@@ -1,5 +1,81 @@
+$(document).ready(function() {
 
-$(document).ready(function () {
+// **************************************** Delete Function *********************
+$(".delete").click(function () {
+    $.ajax({
+        url: 'backliftapp/finalproject/' + $(this).attr('id'),
+        type: 'DELETE',
+            success: function() {
+                console.log("deleted");
+        
+            },
+            error: function(){
+                alert("fail delete");
+            }
+        });//end get
+});//end reset click
+// **************************************** Test Function *********************
+
+function test(){
+
+    $.ajax({
+    url: 'backliftapp/finalproject',
+    type: 'GET',
+        success: function(addresses) {
+            // $("#outputDiv").append("<div id='"+addresses.id+"'>"+ addresses+ "</div><button class='delete' id='"+addresses.id+"'>delete</button>");
+        console.log(addresses);
+        },
+        error: function(){
+            alert("fail get");
+        }
+    });//end get
+}//end test
+
+// **************************************** Origin and Destination Variables *********************
+
+$("#getStarted").click(function(){
+$.ajax({
+    url: 'backliftapp/finalproject',
+    type: 'POST',
+    dataType: 'JSON',
+    data: {addresses: ["502+Monroe+St.+Nashville+TN+37208", "109+S.+11th+St.+Nashville+TN+37206", "1724+Jefferson+St.+Nashville+TN+37208", "891+7th+Ave.+N+Nashville+TN+38208", "495+4th+Ave.+N+Nashville+TN+37219", "424+Deaderick+St.+Nashville+TN+37219", "314+6th+Ave.+N+Nashville+TN+37219", "425+Church+St.+Nashville+TN+37219", "424+3rd+Ave.+N+Nashville+TN+37201", "204+Commerce+Ave.+Nashville+TN+37201", "106+1st+Ave.+S+Nashville+TN+37201", "480+Music+City+Bikeway+Nashville+TN+37213", "135+3rd+Ave.+Nashville+TN 37201", "187+9th+Ave.+S+Nashville+TN+37203", "16th+Ave.+S+Nashville+TN+37203", "568+11th+Ave.+S+Nashville+TN+37203", "73+Hermitage+Ave.+Nashville+TN+37210", "101+27th+Ave.+S+Nashville+TN+37203", "2079+Wedgewood+Ave.+Nashville+TN+37212", "101+27th+Ave.+S+Nashville+TN+37203", "176+5th+Ave.+S+Nashville+TN+37204"]
+},
+
+        success: function(data){
+        // test();
+        // console.log("success");
+        
+
+    },
+
+    error: function(){
+        alert("fail post");
+    }
+
+})//end post
+
+});//end function
+
+// {  addresses: function (){
+  
+//                 var collectAddresses = [];
+//                     var theAddresses = $(".origin").each(function(){
+//                     var allAddresses = $(this).val();
+        
+//                     collectAddresses.push(allAddresses);
+//                     });
+
+//             return collectAddresses;
+
+//             };      
+//         },
+
+
+
+
+// addresses: ["502+Monroe+St.+Nashville+TN+37208", "109+S.+11th+St.+Nashville+TN+37206", "1724+Jefferson+St.+Nashville+TN+37208", "891+7th+Ave.+N+Nashville+TN+38208", "495+4th+Ave.+N+Nashville+TN+37219", "424+Deaderick+St.+Nashville+TN+37219", "314+6th+Ave.+N+Nashville+TN+37219", "425+Church+St.+Nashville+TN+37219", "424+3rd+Ave.+N+Nashville+TN+37201", "204+Commerce+Ave.+Nashville+TN+37201", "106+1st+Ave.+S+Nashville+TN+37201", "480+Music+City+Bikeway+Nashville+TN+37213", "135+3rd+Ave.+Nashville+TN 37201", "187+9th+Ave.+S+Nashville+TN+37203", "16th+Ave.+S+Nashville+TN+37203", "568+11th+Ave.+S+Nashville+TN+37203", "73+Hermitage+Ave.+Nashville+TN+37210", "101+27th+Ave.+S+Nashville+TN+37203", "2079+Wedgewood+Ave.+Nashville+TN+37212", "101+27th+Ave.+S+Nashville+TN+37203", "176+5th+Ave.+S+Nashville+TN+37204"]
+
+
 
     // **************************************** Define Variables *************************************
 
@@ -49,19 +125,6 @@ $(document).ready(function () {
 
 
 
-    // **************************************** Origin and Destination Variables *********************
-
- // function collectDistances(){
-  
- //        var collectAddresses = [];
- //        var theAddresses = $(".origin").each(function(){
- //        var allAddresses = $(this).val();
-
- //        });
-
-        
-
- //      }
 
 
     // **************************************** Distance Matrix **************************************
@@ -88,8 +151,8 @@ $(document).ready(function () {
         service.getDistanceMatrix({
             origins: [origin],
             destinations: [destination],
-            travelMode: google.maps.TravelMode.DRIVING,
-            unitSystem: google.maps.UnitSystem.imperial,
+            travelMode: google.maps.TravelMode.BICYCLING,
+            unitSystem: google.maps.UnitSystem.IMPERIAL,
             avoidHighways: true,
             avoidTolls: true
         }, callback);
@@ -107,9 +170,9 @@ $(document).ready(function () {
 
             for (var i = 0; i < origins.length; i++) {
                 var results = response.rows[i].elements;
-                addMarker(origins[i], false);
+                // addMarker(origins[i], false);
                 for (var j = 0; j < results.length; j++) {
-                    addMarker(destinations[j], true);
+                    // addMarker(destinations[j], true);
                     outputDiv.innerHTML += origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>';
                 }
             }
@@ -155,7 +218,7 @@ $(document).ready(function () {
         calcRoute();
     }); //end getRoute click
     $("#Reset").click(function () {
-        initialize();
+        // initialize();
     }); //end getRoute click
     $("#Distances").click(function () {
         calculateDistances();
