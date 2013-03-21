@@ -1,37 +1,32 @@
 $(document).ready(function() {
 
-// **************************************** Load Map *********************************************
-
+    // **************************************** Load Map *********************************************
     initialize();
 
-// **************************************** Collect Addresses ***************************************
+    // **************************************** Collect Addresses ***************************************
 
+    function getAddresses(x) {
 
-    function getAddresses(x){
-  
-                var collectAddresses = [];
-                    var theAddresses = $(".origin").each(function(){
-                    var allAddresses = $(this).val();
-                    collectAddresses.push(allAddresses);
-                    for(var i in collectAddresses){
-                        if (collectAddresses[i] == x){
-                            collectAddresses.splice(i,1);
-                        }
-                    }
-                        });
+        var collectAddresses = [];
+        var theAddresses = $(".origin").each(function() {
+            var allAddresses = $(this).val();
+            collectAddresses.push(allAddresses);
+            for (var i in collectAddresses) {
+                if (collectAddresses[i] == x) {
+                    collectAddresses.splice(i, 1);
+                }
+            }
+        });
 
-            return collectAddresses;
+        return collectAddresses;
 
-            };  
+    };
 
-// **************************************** Define Variables *************************************
-
+    // **************************************** Define Variables *************************************
 
     // var directionsDisplay;
     // var directionsService = new google.maps.DirectionsService();
-
     // **************************************** Define Function to Render Map ************************
-
 
     function initialize() {
 
@@ -49,9 +44,7 @@ $(document).ready(function() {
 
     // **************************************** Define Function to Get and Display Directions ********
 
-
     // function calcRoute() {
-
     //     var start = document.getElementById("origin").value;
     //     var end = document.getElementById("destination").value;
     //     var request = {
@@ -66,15 +59,11 @@ $(document).ready(function() {
     //     });
     // }
 
-
-
     // **************************************** Distance Matrix **************************************
-
 
     var geocoder;
 
     function calculateDistances() {
-
 
         var origin = $("#origin option:selected").val();
         var service = new google.maps.DistanceMatrixService();
@@ -98,83 +87,80 @@ $(document).ready(function() {
             var destinations = response.destinationAddresses;
             var outputDiv = document.getElementById('outputDiv');
             outputDiv.innerHTML = '';
-           
 
             for (var i = 0; i < origins.length; i++) {
                 var results = response.rows[i].elements;
-                
+
                 for (var j = 0; j < results.length; j++) {
-                    
+
                     // outputDiv.innerHTML += origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>';
-                    outputDiv.innerHTML += origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>';
+                    // outputDiv.innerHTML += origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>';
 
-                    
-                    sortDistance(response.rows[i].elements[j].distance.text, destinations[j] + " " +response.rows[i].elements[j].distance.text);
-
+                    // evalDistance(response.rows[i].elements[j].distance.text, destinations[j] + " " +response.rows[i].elements[j].distance.text);
+                    sortDistance(response.rows[i].elements[j].distance.text, origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>');
                 }
-                // console.log(results);
+
             }
 
-
         }
-    
+
     }
 
-// **************************************** Display routes by Distance **************************************************
+    // **************************************** Display routes by Distance **************************************************
 
-function sortDistance(x, y){
-   
+    function sortDistance(x, y) {
+        var oneMile = [];
+        var twoMile = [];
+        var threeMile = [];
 
-        if (parseFloat(x)<1){
-            
-            console.log(y);
+        if (parseFloat(x) > 3) {
+
+            threeMile.push(y);
+
+        }
+ else if (parseFloat(x) >= 1) {
+
+            twoMile.push(y);
+
+        }
+ else {
+            oneMile.push(y);
         }
 
-        else if(parseFloat(x)>=1 && parseFloat(x)<3){
-            console.log(y);
-           
+        var distSelect = $("#distance option:selected").val();
+
+        // if (parseFloat(x)>3 && distSelect == "3Mile")
+        if (distSelect == "3Mile") {
+
+            console.log(threeMile);
         }
 
-        else{
-            console.log(y);
+        // else if(parseFloat(x)>=2.9 && distSelect == "1to3Mile")
+        else if (distSelect == "1to3Mile") {
+
+            console.log(twoMile);
+
+        }
+ else {
+            console.log(oneMile);
         }
 
+    };
 
-}//end sortDistance
+    // **************************************** Clear Page ******************************************************************
+    function clearPage() {
+        $("#outputDiv").html(" ");
+    };
 
-// function evalDistance(distance){
-
-//     var distSelect = $("#distance option: selected").val();
-//     if(distSelect == "oneMile"){
-       
-//         }
-//     }
-//     else if (distSelect == "1to3Mile"){
-//         //print routes 1-3 miles
-//     }
-
-//     else{
-//         //print routes over 3
-//     }
-
-// };// end eval distance
-
-
-// **************************************** Clear Page ******************************************************************
-
-function clearPage(){
-    $("#outputDiv").html(" ");
-};
-
-
-// **************************************** Call Functions on button clicks *********************************************
-
-    $("#Reset").click(function () {
+    // **************************************** Call Functions on button clicks *********************************************
+    $("#Reset").click(function() {
         clearPage();
-    }); //end getRoute click
-    $("#Distances").click(function () {
+    });
+    //end getRoute click
+    $("#Distances").click(function() {
         calculateDistances();
-    }); //end getRoute click
+    });
+    //end getRoute click
 
-
-}); //end ready
+    });
+//end ready
