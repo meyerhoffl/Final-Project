@@ -1,15 +1,15 @@
 $(document).ready(function() {
 
-    // **************************************** Load Map *********************************************
+// **************************************** Load Map *********************************************
     initialize();
 
-    // **************************************** Collect Addresses ***************************************
-
+// **************************************** Collect Addresses ************************************
     function getAddresses(x) {
 
         var collectAddresses = [];
         var theAddresses = $(".origin").each(function() {
             var allAddresses = $(this).val();
+
             collectAddresses.push(allAddresses);
             for (var i in collectAddresses) {
                 if (collectAddresses[i] == x) {
@@ -22,49 +22,45 @@ $(document).ready(function() {
 
     };
 
-    // **************************************** Define Variables *************************************
+// **************************************** Change Addresses to Coordinates ***********************
 
-    // var directionsDisplay;
-    // var directionsService = new google.maps.DirectionsService();
-    // **************************************** Define Function to Render Map ************************
+    // function codeAddress(x) {
+    //     // for (var i=0; i<x.length; i++){
+    //         var address = x;
+    //         geocoder.geocode( { 'address': address}, function(results, status) {
+    //             if (status == google.maps.GeocoderStatus.OK) {
+    //                 // console.log(results[0].geometry.location.kb + ", " + results[0].geometry.location.lb);
+    //                 console.log(results[0]);
 
-    function initialize() {
-
-        var directionsDisplay = new google.maps.DirectionsRenderer();
-        var nashville = new google.maps.LatLng(36.171361, -86.779495);
-        var mapOptions = {
-            zoom: 11,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            center: nashville
-        }
-        var map = new google.maps.Map(document.getElementById("googleMap"), mapOptions);
-        directionsDisplay.setMap(map);
-        geocoder = new google.maps.Geocoder();
-    }
-
-    // **************************************** Define Function to Get and Display Directions ********
-
-    // function calcRoute() {
-    //     var start = document.getElementById("origin").value;
-    //     var end = document.getElementById("destination").value;
-    //     var request = {
-    //         origin: start,
-    //         destination: end,
-    //         travelMode: google.maps.TravelMode.DRIVING
-    //     };
-    //     directionsService.route(request, function (result, status) {
-    //         if (status == google.maps.DirectionsStatus.OK) {
-    //             directionsDisplay.setDirections(result);
-    //         }
-    //     });
+    //             } else {
+    //                 alert("Geocode was not successful for the following reason: " + status);
+    //             }
+    //         });
+    //     // }
+    //     // console.log(x);
+    //     return x;
     // }
 
-    // **************************************** Distance Matrix **************************************
+// **************************************** Define Function to Get and Display Directions *********
+    function calcRoute() {
+        var start = document.getElementById("origin").value;
+        var end = document.getElementById("destination").value;
+        var request = {
+            origin: start,
+            destination: end,
+            travelMode: google.maps.TravelMode.DRIVING
+        };
+        directionsService.route(request, function(result, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+                directionsDisplay.setDirections(result);
+            }
+        });
 
-    var geocoder;
+    }
+// **************************************** Distance Matrix ****************************************
+   
 
     function calculateDistances() {
-
         var origin = $("#origin option:selected").val();
         var service = new google.maps.DistanceMatrixService();
 
@@ -76,6 +72,7 @@ $(document).ready(function() {
             avoidHighways: true,
             avoidTolls: true
         }, callback);
+        getDestination();
 
     }
 
@@ -93,10 +90,6 @@ $(document).ready(function() {
 
                 for (var j = 0; j < results.length; j++) {
 
-                    // outputDiv.innerHTML += origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>';
-                    // outputDiv.innerHTML += origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>';
-
-                    // evalDistance(response.rows[i].elements[j].distance.text, destinations[j] + " " +response.rows[i].elements[j].distance.text);
                     sortDistance(response.rows[i].elements[j].distance.text, origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>');
                 }
 
@@ -106,8 +99,7 @@ $(document).ready(function() {
 
     }
 
-    // **************************************** Display routes by Distance **************************************************
-
+// **************************************** Display routes by Distance *******************************
     function sortDistance(x, y) {
         var oneMile = [];
         var twoMile = [];
@@ -117,50 +109,156 @@ $(document).ready(function() {
 
             threeMile.push(y);
 
-        }
- else if (parseFloat(x) >= 1) {
+        } else if (parseFloat(x) >= 1) {
 
             twoMile.push(y);
 
-        }
- else {
+        } else {
             oneMile.push(y);
         }
 
         var distSelect = $("#distance option:selected").val();
 
-        // if (parseFloat(x)>3 && distSelect == "3Mile")
+      
         if (distSelect == "3Mile") {
 
-            console.log(threeMile);
+            outputDiv.innerHTML += threeMile;
         }
 
-        // else if(parseFloat(x)>=2.9 && distSelect == "1to3Mile")
+       
         else if (distSelect == "1to3Mile") {
 
-            console.log(twoMile);
+            outputDiv.innerHTML += twoMile;
 
-        }
- else {
-            console.log(oneMile);
+        } else {
+            outputDiv.innerHTML += oneMile;
         }
 
     };
 
-    // **************************************** Clear Page ******************************************************************
+// **************************************** Elevation ***************************************************
+    var elevator;
+    var chart;
+    var infowindow = new google.maps.InfoWindow();
+    var polyline;
+
+    function initialize() {
+
+        var directionsDisplay = new google.maps.DirectionsRenderer();
+        var nashville = new google.maps.LatLng(36.171361, -86.779495);
+        var mapOptions = {
+            zoom: 11,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            center: nashville
+        }
+
+        var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+
+        directionsDisplay.setMap(map);
+        geocoder = new google.maps.Geocoder();
+        // Create an ElevationService.
+        elevator = new google.maps.ElevationService();
+
+        // Draw the path, using the Visualization API and the Elevation service.
+        drawPath();
+    }
+
+    function getDestination() {
+        var multDestinations = getAddresses();
+        for (var i = 0; i < multDestinations.length; i++) {
+            singleDestination = multDestinations[i];
+            return (singleDestination);
+
+        }
+
+    };
+
+    function drawPath() {
+
+        var values = $("#origin option:selected").val().split(",");
+        var v1 = parseFloat(values[0]);
+        var v2 = parseFloat(values[1]);
+
+        // Create a new chart in the elevation_chart DIV.
+        chart = new google.visualization.ColumnChart(document.getElementById('elevation_chart'));
+        var whitney = new google.maps.LatLng(36.578581, -118.291994);
+        var lonepine = new google.maps.LatLng(36.606111, -118.062778);
+
+        var origin = new google.maps.LatLng(v1, v2);
+        console.log(origin);
+
+        var path = [origin, lonepine];
+
+        // Create a PathElevationRequest object using this array.
+        // Ask for 256 samples along that path.
+        var pathRequest = {
+            'path': path,
+            'samples': 5
+        }
+
+        // Initiate the path request.
+        elevator.getElevationAlongPath(pathRequest, plotElevation);
+    }
+
+    // Takes an array of ElevationResult objects, draws the path on the map
+    // and plots the elevation profile on a Visualization API ColumnChart.
+    function plotElevation(results, status) {
+
+        if (status == google.maps.ElevationStatus.OK) {
+
+            elevations = results;
+
+            // Extract the elevation samples from the returned results
+            // and store them in an array of LatLngs.
+            var elevationPath = [];
+            for (var i = 0; i < results.length; i++) {
+                elevationPath.push(elevations[i].location);
+                console.log(elevations[i].elevation);
+            }
+
+            // Display a polyline of the elevation path.
+            // var pathOptions = {
+            //     path: elevationPath,
+            //     strokeColor: '#0000CC',
+            //     opacity: 0.4,
+            //     map: map
+            // }
+            // polyline = new google.maps.Polyline(pathOptions);
+            // Extract the data from which to populate the chart.
+            // Because the samples are equidistant, the 'Sample'
+            // column here does double duty as distance along the
+            // X axis.
+            // var data = new google.visualization.DataTable();
+            // data.addColumn('string', 'Sample');
+            // data.addColumn('number', 'Elevation');
+            // for (var i = 0; i < results.length; i++) {
+            //     data.addRow(['', elevations[i].elevation]);
+            // }
+            // // Draw the chart using the data within its DIV.
+            // document.getElementById('elevation_chart').style.display = 'block';
+            // chart.draw(data, {
+            //     width: 640,
+            //     height: 200,
+            //     legend: 'none',
+            //     titleY: 'Elevation (m)'
+            // });
+            }
+
+    }
+// **************************************** Clear Page ******************************************************************
     function clearPage() {
         $("#outputDiv").html(" ");
     };
 
-    // **************************************** Call Functions on button clicks *********************************************
+// **************************************** Call Functions on button clicks *********************************************
     $("#Reset").click(function() {
         clearPage();
     });
-    //end getRoute click
+//end Reset click
     $("#Distances").click(function() {
         calculateDistances();
     });
-    //end getRoute click
+//end Distances click
 
     });
 //end ready
