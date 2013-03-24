@@ -163,31 +163,50 @@ $(document).ready(function() {
         drawPath();
     }
 
-    function getDestination() {
-        var multDestinations = getAddresses();
-        for (var i = 0; i < multDestinations.length; i++) {
-            singleDestination = multDestinations[i];
-            return (singleDestination);
+    // function getDestination(x) {
+    //     var multDestinations = getAddresses(x);
+    //     for (var i = 0; i < multDestinations.length; i++) {
+    //         singleDestination = multDestinations[i];
+    //         // console.log(singleDestination);
 
-        }
+    //     }
 
-    };
+    // };
 
     function drawPath() {
 
-        var values = $("#origin option:selected").val().split(",");
-        var v1 = parseFloat(values[0]);
-        var v2 = parseFloat(values[1]);
+        var originVal = $("#origin option:selected").val().split(",");
+        var o1 = parseFloat(originVal[0]);
+        var o2 = parseFloat(originVal[1]);
+
+
+        
+        var destinationValues = getAddresses($("#origin option:selected").val());
+        for (var i=0; i<destinationValues.length; i++){
+        // var destVal = destination[i].split(",");    
+        // var d1 = parseFloat(destinationValues[i].split(",")[0]);
+        // var d2 = parseFloat(destinationValues[i].split(",")[1]);
+        var destValArray=[];
+        destValArray.push(parseFloat(destinationValues[i].split(",")[0]),parseFloat(destinationValues[i].split(",")[1]));
+   
+        }
+        console.log(destValArray);
+        
+        
+
+
 
         // Create a new chart in the elevation_chart DIV.
         chart = new google.visualization.ColumnChart(document.getElementById('elevation_chart'));
-        var whitney = new google.maps.LatLng(36.578581, -118.291994);
-        var lonepine = new google.maps.LatLng(36.606111, -118.062778);
+        var eleventh = new google.maps.LatLng(36.176877, -86.74966);
+        var fifth = new google.maps.LatLng(36.159263,-86.777225);
+     
 
-        var origin = new google.maps.LatLng(v1, v2);
-        console.log(origin);
+        var origin = new google.maps.LatLng(o1, o2);
+        for (var y=0; y<destValArray.length; y++){
+      
 
-        var path = [origin, lonepine];
+        var path = [origin, new google.maps.LatLng(destValArray[y])];
 
         // Create a PathElevationRequest object using this array.
         // Ask for 256 samples along that path.
@@ -198,6 +217,7 @@ $(document).ready(function() {
 
         // Initiate the path request.
         elevator.getElevationAlongPath(pathRequest, plotElevation);
+    }
     }
 
     // Takes an array of ElevationResult objects, draws the path on the map
