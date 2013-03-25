@@ -9,8 +9,7 @@ and the distance that they would like to ride. It is also entering the coordinat
 station on the list into the drawPath function, which takes 5 elevation samples along the route. Currently, these samples
 are just being displayed in the console log.
 
-Ultimately, I'd like to sort the routes by elevation, like I did for the distances, so that the user can select
-a route based on distance and elevation along the way. For the sake of finishing the project before March 27, however, I am working on
+For the sake of finishing the project before March 27, I have modified my original goal, and I am working on
 a function that would enable the user to click a button next to the route they want and display the elevation
 stats for that route. 
 
