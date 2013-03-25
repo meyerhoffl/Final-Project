@@ -4,8 +4,8 @@ ends at another station based on distance, elevation, and points of interest.
 
 For this project, I am using the Foundation framework and the Google Maps API.
 
-At this stage, the map is displaying routes to and from each BCycle station after the user selects their station 
-and the distance that they would like to ride. It is also entering the coordinates for the user's station and the last
+At this stage, the map is displaying routes to BCycle stations based on the users selection of their station and the
+distance that they would like to ride. It is also entering the coordinates for the user's station and the last
 station on the list into the drawPath function, which takes 5 elevation samples along the route. Currently, these samples
 are just being displayed in the console log.
 
