@@ -199,13 +199,11 @@ $(document).ready(function() {
                    
             }//end i for loops
 
-console.log(elevationArray);
     }//end drawPath
 
     // Takes an array of ElevationResult objects, draws the path on the map
     // and plots the elevation profile on a Visualization API ColumnChart.
-    // elevationArray=[];
-   elevationArray=[];
+  
 
     function plotElevation(results, status) {
      
@@ -221,11 +219,10 @@ console.log(elevationArray);
                 for (var i = 0; i < results.length; i++) {
                        
                     elevationPath.push(elevations[i].location);    
-                    elevationValue.push(elevations[i].elevation); 
-                    
+                    elevationValue.push(elevations[i].elevation);
 
                 }
-                console.log(elevationValue);
+                    console.log(elevationValue);
                 
 
                     // debugger;
