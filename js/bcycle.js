@@ -72,7 +72,7 @@ $(document).ready(function() {
             avoidHighways: true,
             avoidTolls: true
         }, callback);
-        getDestination();
+       
 
     }
 
@@ -141,6 +141,7 @@ $(document).ready(function() {
     var chart;
     var infowindow = new google.maps.InfoWindow();
     var polyline;
+    var map
 
     function initialize() {
 
@@ -152,7 +153,7 @@ $(document).ready(function() {
             center: nashville
         }
 
-        var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+        map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
 
         directionsDisplay.setMap(map);
         geocoder = new google.maps.Geocoder();
@@ -160,18 +161,9 @@ $(document).ready(function() {
         elevator = new google.maps.ElevationService();
 
         // Draw the path, using the Visualization API and the Elevation service.
-        drawPath();
+        
     }
 
-    // function getDestination(x) {
-    //     var multDestinations = getAddresses(x);
-    //     for (var i = 0; i < multDestinations.length; i++) {
-    //         singleDestination = multDestinations[i];
-    //         // console.log(singleDestination);
-
-    //     }
-
-    // };
 
     function drawPath() {
 
@@ -189,8 +181,8 @@ $(document).ready(function() {
         
         var destValArray=[];
         destValArray.push(parseFloat(destinationValues[i].split(",")[0]),parseFloat(destinationValues[i].split(",")[1]));
-        bigArray.push(destValArray);
-        }
+        // bigArray.push(destValArray);
+       
        
          // console.log(bigArray);
 
@@ -200,23 +192,24 @@ $(document).ready(function() {
      
 
         var origin = new google.maps.LatLng(o1, o2);
-            for (var y=0; y<bigArray.length; y++){
+            for (var y=0; y<destValArray.length; y++){
       
 
-            var path = [origin, new google.maps.LatLng(bigArray[y])];
+            var path = [origin, new google.maps.LatLng(parseFloat(destinationValues[i].split(",")[0]),parseFloat(destinationValues[i].split(",")[1]))];
 
-
+           
         // Create a PathElevationRequest object using this array.
         // Ask for 256 samples along that path.
             var pathRequest = {
             'path': path,
-            'samples': 5
+            'samples': 20
             }
 
         // Initiate the path request.
             elevator.getElevationAlongPath(pathRequest, plotElevation);
             }
-    
+
+         }
     }
 
     // Takes an array of ElevationResult objects, draws the path on the map
@@ -232,35 +225,35 @@ $(document).ready(function() {
             var elevationPath = [];
             for (var i = 0; i < results.length; i++) {
                 elevationPath.push(elevations[i].location);
-                // console.log(elevations[i].elevation);
+                console.log(elevations[i].elevation);
             }
 
             // Display a polyline of the elevation path.
-            // var pathOptions = {
-            //     path: elevationPath,
-            //     strokeColor: '#0000CC',
-            //     opacity: 0.4,
-            //     map: map
-            // }
-            // polyline = new google.maps.Polyline(pathOptions);
+            var pathOptions = {
+                path: elevationPath,
+                strokeColor: '#0000CC',
+                opacity: 0.4,
+                map: map
+            }
+            polyline = new google.maps.Polyline(pathOptions);
             // Extract the data from which to populate the chart.
             // Because the samples are equidistant, the 'Sample'
             // column here does double duty as distance along the
             // X axis.
-            // var data = new google.visualization.DataTable();
-            // data.addColumn('string', 'Sample');
-            // data.addColumn('number', 'Elevation');
-            // for (var i = 0; i < results.length; i++) {
-            //     data.addRow(['', elevations[i].elevation]);
-            // }
-            // // Draw the chart using the data within its DIV.
-            // document.getElementById('elevation_chart').style.display = 'block';
-            // chart.draw(data, {
-            //     width: 640,
-            //     height: 200,
-            //     legend: 'none',
-            //     titleY: 'Elevation (m)'
-            // });
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Sample');
+            data.addColumn('number', 'Elevation');
+            for (var i = 0; i < results.length; i++) {
+                data.addRow(['', elevations[i].elevation]);
+            }
+            // Draw the chart using the data within its DIV.
+            document.getElementById('elevation_chart').style.display = 'block';
+            chart.draw(data, {
+                width: 640,
+                height: 200,
+                legend: 'none',
+                titleY: 'Elevation (m)'
+            });
             }
 
     }
@@ -276,6 +269,7 @@ $(document).ready(function() {
 //end Reset click
     $("#Distances").click(function() {
         calculateDistances();
+        drawPath();
     });
 //end Distances click
 
