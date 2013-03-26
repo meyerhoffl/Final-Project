@@ -179,45 +179,44 @@ $(document).ready(function() {
         var o1 = parseFloat(originVal[0]);
         var o2 = parseFloat(originVal[1]);
 
-
+        var bigArray=[];
         
         var destinationValues = getAddresses($("#origin option:selected").val());
         for (var i=0; i<destinationValues.length; i++){
         // var destVal = destination[i].split(",");    
         // var d1 = parseFloat(destinationValues[i].split(",")[0]);
         // var d2 = parseFloat(destinationValues[i].split(",")[1]);
+        
         var destValArray=[];
         destValArray.push(parseFloat(destinationValues[i].split(",")[0]),parseFloat(destinationValues[i].split(",")[1]));
-   
+        bigArray.push(destValArray);
         }
-        console.log(destValArray);
-        
-        
-
-
+       
+         // console.log(bigArray);
 
         // Create a new chart in the elevation_chart DIV.
         chart = new google.visualization.ColumnChart(document.getElementById('elevation_chart'));
-        var eleventh = new google.maps.LatLng(36.176877, -86.74966);
-        var fifth = new google.maps.LatLng(36.159263,-86.777225);
+   
      
 
         var origin = new google.maps.LatLng(o1, o2);
-        for (var y=0; y<destValArray.length; y++){
+            for (var y=0; y<bigArray.length; y++){
       
 
-        var path = [origin, new google.maps.LatLng(destValArray[y])];
+            var path = [origin, new google.maps.LatLng(bigArray[y])];
+
 
         // Create a PathElevationRequest object using this array.
         // Ask for 256 samples along that path.
-        var pathRequest = {
+            var pathRequest = {
             'path': path,
             'samples': 5
-        }
+            }
 
         // Initiate the path request.
-        elevator.getElevationAlongPath(pathRequest, plotElevation);
-    }
+            elevator.getElevationAlongPath(pathRequest, plotElevation);
+            }
+    
     }
 
     // Takes an array of ElevationResult objects, draws the path on the map
@@ -233,7 +232,7 @@ $(document).ready(function() {
             var elevationPath = [];
             for (var i = 0; i < results.length; i++) {
                 elevationPath.push(elevations[i].location);
-                console.log(elevations[i].elevation);
+                // console.log(elevations[i].elevation);
             }
 
             // Display a polyline of the elevation path.
