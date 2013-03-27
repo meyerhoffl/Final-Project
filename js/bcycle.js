@@ -3,6 +3,12 @@ $(document).ready(function() {
 // **************************************** Load Map *********************************************
     initialize();
 
+    average = function(a) {
+      var r = {mean: 0, variance: 0, deviation: 0}, t = a.length;
+      for(var m, s = 0, l = t; l--; s += a[l]);
+      for(m = r.mean = s / t, l = t, s = 0; l--; s += Math.pow(a[l] - m, 2));
+      return r.deviation = Math.sqrt(r.variance = s / t), r;
+    }
 // **************************************** Collect Addresses ************************************
     function getAddresses(x) {
 
@@ -80,8 +86,23 @@ $(document).ready(function() {
         if (status != google.maps.DistanceMatrixStatus.OK) {
             alert('Error was: ' + status);
         } else {
+            var origin = $("#origin option:selected").val();
+            var distSelect = $("#distance option:selected").val();
+            var max = 0;
+            var min = 0;
+            if (distSelect == "3Mile") {
+                max = 999999999;
+                min = 4828
+            }else if (distSelect == "1to3Mile") {
+                max = 4828
+                min = 1609.34
+            } else {
+                max = 1609.34
+            }
             var origins = response.originAddresses;
             var destinations = response.destinationAddresses;
+            var destination_objects = [];
+            var longlat = getAddresses(origin)
             var outputDiv = document.getElementById('outputDiv');
             outputDiv.innerHTML = '';
 
@@ -89,17 +110,85 @@ $(document).ready(function() {
                 var results = response.rows[i].elements;
 
                 for (var j = 0; j < results.length; j++) {
-
-                    sortDistance(response.rows[i].elements[j].distance.text, origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>');
+                    if(results[j].distance.value > max || results[j].distance.value < min) {
+                        continue
+                    }
+                    //var filtered_destinations = sortDistance(response.rows[i].elements[j].distance.text, origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>');
+                    destination_objects.push({
+                        title: origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text,
+                        name: destinations[j],
+                        distance: results[j].distance.value,
+                        longlat: longlat[j]
+                    })
                     
                 }
 
             }
+            filter_by_elevation(destination_objects)
 
         }
 
     }
+    function filter_by_elevation(destinations){
+        var originVal = $("#origin option:selected").val().split(",");
+        var o1 = parseFloat(originVal[0]);
+        var o2 = parseFloat(originVal[1]);
+        var max = 0;
+        var min = 0;
+        var elevationVal = $("#terrain option:selected").val()
+        if (distSelect == "flat") {
+            max = 10;
+        }else if (distSelect == "moderate") {
+            max = 50
+            min = 10
+        } else {
+            max = 500
+        }
+        var filter_elevations = function(){
+            var filtered = []
+            for (var i=0; i<destinations.length; i++){
+                var stddeviation = average(destintions[i].elevations)
+                if(stddeviation > max || stddeviation < min) {
+                    continue
+                }
+                filtered.push(destinations[i])
+            }
+            printDestinations(filtered)
+        }
+        var afterAsync = _.after(destinations.length, filter_elevations)
+        for (var i=0; i<destinations.length; i++){
 
+            // Create a new chart in the elevation_chart DIV.
+            chart = new google.visualization.ColumnChart(document.getElementById('elevation_chart'));
+
+            var origin = new google.maps.LatLng(o1, o2);            
+
+            var path = [origin, new google.maps.LatLng(parseFloat(destinations[i].longlat.split(",")[0]),parseFloat(destinations[i].longlat.split(",")[1]))];
+                
+            
+            // Create a PathElevationRequest object using this array.
+            // Ask for 256 samples along that path.
+            var pathRequest = {
+            'path': path,
+            'samples': 5
+            }
+            var on_success = function(results, status){
+                if (status == google.maps.ElevationStatus.OK) {
+                    var elevationValue = [];
+                // alert(elevationValue);
+                    for (var j = 0; j < results.length; j++) { 
+                        elevationValue.push(elevations[j].elevation);
+                    }
+                    destinations[i].elevations = elevationValue;
+                }
+                afterAsync()
+                
+            }
+            // Initiate the path request.
+            elevator.getElevationAlongPath(pathRequest, on_success);
+               
+        }//end i for loops
+    }
 // **************************************** Display routes by Distance *******************************
     function sortDistance(x, y) {
         var oneMile = [];
@@ -193,7 +282,7 @@ $(document).ready(function() {
                 'path': path,
                 'samples': 5
                 }
-    
+            
                 // Initiate the path request.
                 elevator.getElevationAlongPath(pathRequest, plotElevation);
                    
