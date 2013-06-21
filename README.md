@@ -1,3 +1,6 @@
+JavaScript Capstone Project
+==========================
+
 For my final project at the Nashville Software School, I am mapping the distance and elevation between Nashville's 
 BCycle stations. Ultimately, I'd like for the user to be able to select their station, and then select a route that
 ends at another station based on distance, elevation, and points of interest. 
