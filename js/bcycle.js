@@ -2,13 +2,32 @@ $(document).ready(function() {
 
 // **************************************** Load Map *********************************************
     initialize();
+// **************************************** Change Address to Coordinates ************************
 
-    average = function(a) {
-      var r = {mean: 0, variance: 0, deviation: 0}, t = a.length;
-      for(var m, s = 0, l = t; l--; s += a[l]);
-      for(m = r.mean = s / t, l = t, s = 0; l--; s += Math.pow(a[l] - m, 2));
-      return r.deviation = Math.sqrt(r.variance = s / t), r;
+       function codeAddress(x) {
+            var address = x;
+            geocoder.geocode( { 'address': address}, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    // console.log(results)
+                    coordinates = results[0].geometry.location.jb + ", " + results[0].geometry.location.kb;
+                    console.log(coordinates);
+                } else {
+                    alert("Geocode was not successful for the following reason: " + status);
+                }
+            });
+
+
     }
+
+    function getDestinationAddress(){
+
+        $('.route').click(function(){
+
+           destination_address = event.target.id;
+           codeAddress(destination_address)
+        });
+    }
+
 // **************************************** Collect Addresses ************************************
     function getAddresses(x) {
 
@@ -28,25 +47,6 @@ $(document).ready(function() {
 
     };
 
-// **************************************** Change Addresses to Coordinates ***********************
-
-    // function codeAddress(x) {
-    //     // for (var i=0; i<x.length; i++){
-    //         var address = x;
-    //         geocoder.geocode( { 'address': address}, function(results, status) {
-    //             if (status == google.maps.GeocoderStatus.OK) {
-    //                 // console.log(results[0].geometry.location.kb + ", " + results[0].geometry.location.lb);
-    //                 console.log(results[0]);
-
-    //             } else {
-    //                 alert("Geocode was not successful for the following reason: " + status);
-    //             }
-    //         });
-    //     // }
-    //     // console.log(x);
-    //     return x;
-    // }
-
 // **************************************** Define Function to Get and Display Directions *********
     // function calcRoute() {
     //     var start = document.getElementById("origin").value;
@@ -64,7 +64,7 @@ $(document).ready(function() {
 
     // }
 // **************************************** Distance Matrix ****************************************
-   
+
 
     function calculateDistances() {
         var origin = $("#origin option:selected").val();
@@ -78,7 +78,7 @@ $(document).ready(function() {
             avoidHighways: true,
             avoidTolls: true
         }, callback);
-       
+        getDestination();
 
     }
 
@@ -86,109 +86,26 @@ $(document).ready(function() {
         if (status != google.maps.DistanceMatrixStatus.OK) {
             alert('Error was: ' + status);
         } else {
-            var origin = $("#origin option:selected").val();
-            var distSelect = $("#distance option:selected").val();
-            var max = 0;
-            var min = 0;
-            if (distSelect == "3Mile") {
-                max = 999999999;
-                min = 4828
-            }else if (distSelect == "1to3Mile") {
-                max = 4828
-                min = 1609.34
-            } else {
-                max = 1609.34
-            }
             var origins = response.originAddresses;
             var destinations = response.destinationAddresses;
-            var destination_objects = [];
-            var longlat = getAddresses(origin)
             var outputDiv = document.getElementById('outputDiv');
-            outputDiv.innerHTML = '';
-
+            outputDiv.innerHTML = '<p>The distance from '+ origins+ ' to: </p>';
             for (var i = 0; i < origins.length; i++) {
+
                 var results = response.rows[i].elements;
-
                 for (var j = 0; j < results.length; j++) {
-                    if(results[j].distance.value > max || results[j].distance.value < min) {
-                        continue
-                    }
-                    //var filtered_destinations = sortDistance(response.rows[i].elements[j].distance.text, origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>');
-                    destination_objects.push({
-                        title: origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text,
-                        name: destinations[j],
-                        distance: results[j].distance.value,
-                        longlat: longlat[j]
-                    })
-                    
+
+                    // sortDistance(response.rows[i].elements[j].distance.text, origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>');
+                    sortDistance(response.rows[i].elements[j].distance.text, '<p class = "route" id = "'+ destinations[j] +'">'+ destinations[j] + ' is ' + results[j].distance.text + ', and should take ' + results[j].duration.text + '</p><br />');
+
                 }
 
             }
-            filter_by_elevation(destination_objects)
-
+getDestinationAddress()
         }
 
     }
-    function filter_by_elevation(destinations){
-        var originVal = $("#origin option:selected").val().split(",");
-        var o1 = parseFloat(originVal[0]);
-        var o2 = parseFloat(originVal[1]);
-        var max = 0;
-        var min = 0;
-        var elevationVal = $("#terrain option:selected").val()
-        if (distSelect == "flat") {
-            max = 10;
-        }else if (distSelect == "moderate") {
-            max = 50
-            min = 10
-        } else {
-            max = 500
-        }
-        var filter_elevations = function(){
-            var filtered = []
-            for (var i=0; i<destinations.length; i++){
-                var stddeviation = average(destintions[i].elevations)
-                if(stddeviation > max || stddeviation < min) {
-                    continue
-                }
-                filtered.push(destinations[i])
-            }
-            printDestinations(filtered)
-        }
-        var afterAsync = _.after(destinations.length, filter_elevations)
-        for (var i=0; i<destinations.length; i++){
 
-            // Create a new chart in the elevation_chart DIV.
-            chart = new google.visualization.ColumnChart(document.getElementById('elevation_chart'));
-
-            var origin = new google.maps.LatLng(o1, o2);            
-
-            var path = [origin, new google.maps.LatLng(parseFloat(destinations[i].longlat.split(",")[0]),parseFloat(destinations[i].longlat.split(",")[1]))];
-                
-            
-            // Create a PathElevationRequest object using this array.
-            // Ask for 256 samples along that path.
-            var pathRequest = {
-            'path': path,
-            'samples': 5
-            }
-            var on_success = function(results, status){
-                if (status == google.maps.ElevationStatus.OK) {
-                    var elevationValue = [];
-                // alert(elevationValue);
-                    for (var j = 0; j < results.length; j++) { 
-                        elevationValue.push(elevations[j].elevation);
-                    }
-                    destinations[i].elevations = elevationValue;
-                }
-                afterAsync()
-                
-            }
-            // Initiate the path request.
-            elevator.getElevationAlongPath(pathRequest, on_success);
-               
-        }//end i for loops
-    }
 // **************************************** Display routes by Distance *******************************
     function sortDistance(x, y) {
         var oneMile = [];
@@ -209,13 +126,13 @@ $(document).ready(function() {
 
         var distSelect = $("#distance option:selected").val();
 
-      
+
         if (distSelect == "3Mile") {
 
             outputDiv.innerHTML += threeMile;
         }
 
-       
+
         else if (distSelect == "1to3Mile") {
 
             outputDiv.innerHTML += twoMile;
@@ -231,8 +148,7 @@ $(document).ready(function() {
     var chart;
     var infowindow = new google.maps.InfoWindow();
     var polyline;
-    var map
-
+    var map;
 
     function initialize() {
 
@@ -244,116 +160,103 @@ $(document).ready(function() {
             center: nashville
         }
 
-        map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+        var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
 
         directionsDisplay.setMap(map);
-
         geocoder = new google.maps.Geocoder();
         // Create an ElevationService.
         elevator = new google.maps.ElevationService();
 
         // Draw the path, using the Visualization API and the Elevation service.
-        
+        drawPath();
     }
+
+    function getDestination() {
+        var multDestinations = getAddresses();
+        for (var i = 0; i < multDestinations.length; i++) {
+            singleDestination = multDestinations[i];
+            // return (singleDestination);
+
+        }
+
+
+    };
+
 
 
     function drawPath() {
 
-        var originVal = $("#origin option:selected").val().split(",");
-        var o1 = parseFloat(originVal[0]);
-        var o2 = parseFloat(originVal[1]);
-        
-        var destinationValues = getAddresses($("#origin option:selected").val());
-            
-            for (var i=0; i<destinationValues.length; i++){
-        
-    
-                // Create a new chart in the elevation_chart DIV.
-                chart = new google.visualization.ColumnChart(document.getElementById('elevation_chart'));
-    
-                var origin = new google.maps.LatLng(o1, o2);            
-        
-                var path = [origin, new google.maps.LatLng(parseFloat(destinationValues[i].split(",")[0]),parseFloat(destinationValues[i].split(",")[1]))];
-                    
-                
-                // Create a PathElevationRequest object using this array.
-                // Ask for 256 samples along that path.
-                var pathRequest = {
-                'path': path,
-                'samples': 5
-                }
-            
-                // Initiate the path request.
-                elevator.getElevationAlongPath(pathRequest, plotElevation);
-                   
-            }//end i for loops
+        var values = $("#origin option:selected").val().split(",");
+        var v1 = parseFloat(values[0]);
+        var v2 = parseFloat(values[1]);
 
-    }//end drawPath
+        // Create a new chart in the elevation_chart DIV.
+        chart = new google.visualization.ColumnChart(document.getElementById('elevation_chart'));
+        var whitney = new google.maps.LatLng(36.578581, -118.291994);
+        var lonepine = new google.maps.LatLng(36.606111, -118.062778);
+
+        var origin = new google.maps.LatLng(v1, v2);
+        // console.log(origin);
+        var destination = getDestination();
+        // console.log(destination);
+
+        var path = [whitney, lonepine];
+
+        // Create a PathElevationRequest object using this array.
+        // Ask for 256 samples along that path.
+        var pathRequest = {
+            'path': path,
+            'samples': 5
+        }
+
+        // Initiate the path request.
+        elevator.getElevationAlongPath(pathRequest, plotElevation);
+    }
 
     // Takes an array of ElevationResult objects, draws the path on the map
     // and plots the elevation profile on a Visualization API ColumnChart.
-  
-
     function plotElevation(results, status) {
-     
+
         if (status == google.maps.ElevationStatus.OK) {
-            
+
             elevations = results;
 
             // Extract the elevation samples from the returned results
             // and store them in an array of LatLngs.
             var elevationPath = [];
-            var elevationValue = [];
-            // alert(elevationValue);
-                for (var i = 0; i < results.length; i++) {
-                       
-                    elevationPath.push(elevations[i].location);    
-                    elevationValue.push(elevations[i].elevation);
-
-                }
-                    console.log(elevationValue);
-                
-
-                    // debugger;
-
-                    // elevationArray.push(elevationPath);             
-                    // console.log(results);
-
+            for (var i = 0; i < results.length; i++) {
+                elevationPath.push(elevations[i].location);
+            }
 
             // Display a polyline of the elevation path.
-            var pathOptions = { 
+            var pathOptions = {
                 path: elevationPath,
                 strokeColor: '#0000CC',
                 opacity: 0.4,
                 map: map
             }
-
             polyline = new google.maps.Polyline(pathOptions);
-            // Extract the data from which to populate the chart. 
+            // Extract the data from which to populate the chart.
             // Because the samples are equidistant, the 'Sample'
             // column here does double duty as distance along the
             // X axis.
-            // var data = new google.visualization.DataTable();
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Sample');
+            data.addColumn('number', 'Elevation');
+            for (var i = 0; i < results.length; i++) {
+                data.addRow(['', elevations[i].elevation]);
+            }
+            // Draw the chart using the data within its DIV.
+            document.getElementById('elevation_chart').style.display = 'block';
+            chart.draw(data, {
+                width: 640,
+                height: 200,
+                legend: 'none',
+                titleY: 'Elevation (m)'
+            });
+            }
 
-            // data.addColumn('string', 'Sample');
-            // data.addColumn('number', 'Elevation');
-            //     for (var i = 0; i < results.length; i++) {
-            //         data.addRow(['', elevations[i].elevation]);
-
-            //     }
-
-
-            // // Draw the chart using the data within its DIV.
-            // document.getElementById('elevation_chart').style.display = 'block';
-            // chart.draw(data, {
-            //     width: 640,
-            //     height: 200,
-            //     legend: 'none',
-            //     titleY: 'Elevation (m)'
-            // });
-        }//end if
-
-    }//end plotElevation
+    }
 // **************************************** Clear Page ******************************************************************
     function clearPage() {
         $("#outputDiv").html(" ");
@@ -366,10 +269,6 @@ $(document).ready(function() {
 //end Reset click
     $("#Distances").click(function() {
         calculateDistances();
-        drawPath();
-
-        
-      
     });
 //end Distances click
 
