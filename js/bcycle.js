@@ -1,51 +1,5 @@
 $(document).ready(function() {
 
-
-
-// var directionsDisplay =  new google.maps.DirectionsRenderer({'map': map});
-// var directionsService = new google.maps.DirectionsService();
-// var map;
-
-// function initialize() {
-//   directionsDisplay = new google.maps.DirectionsRenderer();
-//   var chicago = new google.maps.LatLng(41.850033, -87.6500523);
-//   var mapOptions = {
-//     zoom:7,
-//     mapTypeId: google.maps.MapTypeId.ROADMAP,
-//     center: chicago
-//   }
-//   map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
-//   directionsDisplay.setMap(map);
-// }
-
-// function calcRoute() {
-//   var start = "Nashville, TN";
-//   var end = "Atlanta,GA";
-//   var request = {
-//     origin:start,
-//     destination:end,
-//     travelMode: google.maps.TravelMode.DRIVING
-//   };
-//   directionsService.route(request, function(result, status) {
-//     if (status == google.maps.DirectionsStatus.OK) {
-//       directionsDisplay.setDirections(result);
-//     }
-//   });
-// }
-
-
-// calcRoute();
-
-
-
-
-
-
-
-
-
-//Initialize ****************************************************************************
-
   initialize();
 
 // Change Addresses to Coordinates ******************************************************
@@ -112,11 +66,11 @@ $(document).ready(function() {
       var origins = response.originAddresses;
       var destinations = response.destinationAddresses;
       var outputDiv = document.getElementById('outputDiv');
-      outputDiv.innerHTML = '<p>The distance from '+ origins+ ' to: </p>';
+      outputDiv.innerHTML = '<p class="heading">'+ origins+ ' to: </p>';
       for (var i = 0; i < origins.length; i++) {
         var results = response.rows[i].elements;
         for (var j = 0; j < results.length; j++) {
-          sortDistance(response.rows[i].elements[j].distance.text,destinations[j] + ' is ' + results[j].distance.text + ', and should take ' + results[j].duration.text + '<p class = "route" id = "'+ destinations[j] +'">Show Elevation Chart</p><br />');
+          sortDistance(response.rows[i].elements[j].distance.text,'<span class = "heading">' + destinations[j] + '</span>' + '<br /><span class = "bold">Distance:</span> ' + results[j].distance.text + '.<br /><span class = "bold">Estimated Time:  </span>' + results[j].duration.text + '<p class = "route" id = "'+ destinations[j] +'">Show Route and Elevation Chart</p><br />');
         }
       }
       getDestinationAddress()
@@ -151,27 +105,7 @@ $(document).ready(function() {
       }
     };
 
-// Elevation ***************************************************************************************
-
-  // var elevator;
-  // var map;
-  // function initialize() {
-  //   var chart;
-  //   var infowindow = new google.maps.InfoWindow();
-  //   var polyline;
-  //   var directionsDisplay = new google.maps.DirectionsRenderer();
-  //   var nashville = new google.maps.LatLng(36.171361, -86.779495);
-  //   var mapOptions = {
-  //     zoom: 11,
-  //     mapTypeId: google.maps.MapTypeId.ROADMAP,
-  //     center: nashville
-  //   }
-  //   var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
-  //   directionsDisplay.setMap(map);
-  //   geocoder = new google.maps.Geocoder();
-  //   // Create an ElevationService.
-  //   elevator = new google.maps.ElevationService();
-  // }
+// Initialize ***************************************************************************************
 
   var elevator;
   var directionsDisplay =  new google.maps.DirectionsRenderer({'map': map});
@@ -182,7 +116,7 @@ $(document).ready(function() {
     directionsDisplay = new google.maps.DirectionsRenderer();
     var nashville = new google.maps.LatLng(36.171361, -86.779495);
     var mapOptions = {
-      zoom:7,
+      zoom:12,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       center: nashville
     }
@@ -193,11 +127,13 @@ $(document).ready(function() {
     elevator = new google.maps.ElevationService();
   }
 
+// Display Route ***************************************************************************************
+
   function calcRoute(x,y) {
     var request = {
       origin:x,
       destination:y,
-      travelMode: google.maps.TravelMode.DRIVING
+      travelMode: google.maps.TravelMode.BICYCLING
     };
     directionsService.route(request, function(result, status) {
       if (status == google.maps.DirectionsStatus.OK) {
@@ -205,12 +141,6 @@ $(document).ready(function() {
       }
     });
   }
-
-
-// calcRoute("Nashville, TN", "Atlanta,GA");
-
-
-
 
   function drawPath(x) {
     var destination = x;

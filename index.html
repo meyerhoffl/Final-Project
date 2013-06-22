@@ -24,7 +24,7 @@
 <body>
             <div class="row">
                 <div class="large-12 columns">
-                    	<h2>B Cycle Map</h2>
+                    	<h1>BCycle Routes</h1>
                     <hr />
                 </div>
             </div>
@@ -36,6 +36,11 @@
                             <div class="panel">
                                 <div id="googleMap"></div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <div id="elevation_chart"></div>
                         </div>
                     </div>
                     	<form id="findRoute">
@@ -73,7 +78,7 @@
 
                                 <div class="large-6 columns">
                                     <div class="panel">
-                                    <label>Distance</label>
+                                        <label>Distance</lable>
                                             <select id="distance">
                                                 <option value="oneMile" class="formInput">Less than 1 mile</option>
                                                 <option value="1to3Mile" class="formInput">1 to 3 miles</option>
@@ -87,16 +92,11 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="large-12 columns">
-                                    <div id="elevation_chart"></div>
-                                </div>
-                            </div>
-                            <div class="row">
                                 <div class=" large-6 large-6 columns">
-                                    <a href="#" id="Distances" class="success large expand button">Calculate Distances</a>
+                                    <a href="#" id="Distances" class="success round large expand button">Calculate Distances</a>
                                 </div>
                     		    <div class=" large-6 large-6 columns">
-                    		    	<a href="#" id="Reset" class="alert large expand button">Reset</a>
+                    		    	<a href="#" id="Reset" class="alert round large expand button">Reset</a>
                     		    </div>
                             </div>
                     	</form>
