@@ -9,24 +9,29 @@ $(document).ready(function() {
             geocoder.geocode( { 'address': address}, function(results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
                     // console.log(results)
-                    coordinates = results[0].geometry.location.jb + ", " + results[0].geometry.location.kb;
-                    console.log(coordinates);
+                   coordinates = results[0].geometry.location.jb + ", " + results[0].geometry.location.kb;
+                   // console.log(coordinates);
+                   drawPath(coordinates);
+
                 } else {
                     alert("Geocode was not successful for the following reason: " + status);
                 }
+                return coordinates
             });
 
 
     }
 
     function getDestinationAddress(){
-
         $('.route').click(function(){
 
            destination_address = event.target.id;
-           codeAddress(destination_address)
+codeAddress(destination_address);
+
         });
     }
+
+
 
 // **************************************** Collect Addresses ************************************
     function getAddresses(x) {
@@ -78,7 +83,7 @@ $(document).ready(function() {
             avoidHighways: true,
             avoidTolls: true
         }, callback);
-        getDestination();
+        // getDestination();
 
     }
 
@@ -96,7 +101,7 @@ $(document).ready(function() {
                 for (var j = 0; j < results.length; j++) {
 
                     // sortDistance(response.rows[i].elements[j].distance.text, origins[i] + ' to ' + destinations[j] + ': ' + results[j].distance.text + ' in ' + results[j].duration.text + '<br>');
-                    sortDistance(response.rows[i].elements[j].distance.text, '<p class = "route" id = "'+ destinations[j] +'">'+ destinations[j] + ' is ' + results[j].distance.text + ', and should take ' + results[j].duration.text + '</p><br />');
+                    sortDistance(response.rows[i].elements[j].distance.text,destinations[j] + ' is ' + results[j].distance.text + ', and should take ' + results[j].duration.text + '<p class = "route" id = "'+ destinations[j] +'">Show Elevation Chart</p><br />');
 
                 }
 
@@ -168,7 +173,7 @@ getDestinationAddress()
         elevator = new google.maps.ElevationService();
 
         // Draw the path, using the Visualization API and the Elevation service.
-        drawPath();
+        // drawPath();
     }
 
     function getDestination() {
@@ -184,23 +189,28 @@ getDestinationAddress()
 
 
 
-    function drawPath() {
-
+    function drawPath(x) {
+        var destination = x;
+        console.log(destination);
+        var destvals = destination.split(",");
+        var d1 = parseFloat(destvals[0]);
+        var d2 = parseFloat(destvals[1]);
         var values = $("#origin option:selected").val().split(",");
         var v1 = parseFloat(values[0]);
         var v2 = parseFloat(values[1]);
 
         // Create a new chart in the elevation_chart DIV.
         chart = new google.visualization.ColumnChart(document.getElementById('elevation_chart'));
-        var whitney = new google.maps.LatLng(36.578581, -118.291994);
-        var lonepine = new google.maps.LatLng(36.606111, -118.062778);
+        // var whitney = new google.maps.LatLng(36.578581, -118.291994);
+        // var lonepine = new google.maps.LatLng(36.606111, -118.062778);
 
         var origin = new google.maps.LatLng(v1, v2);
+        var finaldest = new google.maps.LatLng(d1, d2);
         // console.log(origin);
-        var destination = getDestination();
+        // var destination = getDestination();
         // console.log(destination);
 
-        var path = [whitney, lonepine];
+        var path = [origin, finaldest];
 
         // Create a PathElevationRequest object using this array.
         // Ask for 256 samples along that path.
@@ -271,6 +281,10 @@ getDestinationAddress()
         calculateDistances();
     });
 //end Distances click
+
+    $("#Elevation").click(function(){
+        // drawPath();
+    })
 
     });
 //end ready
