@@ -1,5 +1,49 @@
 $(document).ready(function() {
 
+
+
+// var directionsDisplay =  new google.maps.DirectionsRenderer({'map': map});
+// var directionsService = new google.maps.DirectionsService();
+// var map;
+
+// function initialize() {
+//   directionsDisplay = new google.maps.DirectionsRenderer();
+//   var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+//   var mapOptions = {
+//     zoom:7,
+//     mapTypeId: google.maps.MapTypeId.ROADMAP,
+//     center: chicago
+//   }
+//   map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+//   directionsDisplay.setMap(map);
+// }
+
+// function calcRoute() {
+//   var start = "Nashville, TN";
+//   var end = "Atlanta,GA";
+//   var request = {
+//     origin:start,
+//     destination:end,
+//     travelMode: google.maps.TravelMode.DRIVING
+//   };
+//   directionsService.route(request, function(result, status) {
+//     if (status == google.maps.DirectionsStatus.OK) {
+//       directionsDisplay.setDirections(result);
+//     }
+//   });
+// }
+
+
+// calcRoute();
+
+
+
+
+
+
+
+
+
 //Initialize ****************************************************************************
 
   initialize();
@@ -109,32 +153,74 @@ $(document).ready(function() {
 
 // Elevation ***************************************************************************************
 
+  // var elevator;
+  // var map;
+  // function initialize() {
+  //   var chart;
+  //   var infowindow = new google.maps.InfoWindow();
+  //   var polyline;
+  //   var directionsDisplay = new google.maps.DirectionsRenderer();
+  //   var nashville = new google.maps.LatLng(36.171361, -86.779495);
+  //   var mapOptions = {
+  //     zoom: 11,
+  //     mapTypeId: google.maps.MapTypeId.ROADMAP,
+  //     center: nashville
+  //   }
+  //   var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+  //   directionsDisplay.setMap(map);
+  //   geocoder = new google.maps.Geocoder();
+  //   // Create an ElevationService.
+  //   elevator = new google.maps.ElevationService();
+  // }
+
   var elevator;
+  var directionsDisplay =  new google.maps.DirectionsRenderer({'map': map});
+  var directionsService = new google.maps.DirectionsService();
   var map;
+
   function initialize() {
-    var chart;
-    var infowindow = new google.maps.InfoWindow();
-    var polyline;
-    var directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsDisplay = new google.maps.DirectionsRenderer();
     var nashville = new google.maps.LatLng(36.171361, -86.779495);
     var mapOptions = {
-      zoom: 11,
+      zoom:7,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       center: nashville
     }
-    var map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
+    map = new google.maps.Map(document.getElementById('googleMap'), mapOptions);
     directionsDisplay.setMap(map);
     geocoder = new google.maps.Geocoder();
-    // Create an ElevationService.
+      // Create an ElevationService.
     elevator = new google.maps.ElevationService();
   }
 
+  function calcRoute(x,y) {
+    var request = {
+      origin:x,
+      destination:y,
+      travelMode: google.maps.TravelMode.DRIVING
+    };
+    directionsService.route(request, function(result, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsDisplay.setDirections(result);
+      }
+    });
+  }
+
+
+// calcRoute("Nashville, TN", "Atlanta,GA");
+
+
+
+
   function drawPath(x) {
     var destination = x;
+    console.log(destination);
     var destvals = destination.split(",");
     var d1 = parseFloat(destvals[0]);
     var d2 = parseFloat(destvals[1]);
-    var origvalues = $("#origin option:selected").val().split(",");
+    var origin = $("#origin option:selected").val();
+    console.log(origin);
+    var origvalues = origin.split(",");
     var o1 = parseFloat(origvalues[0]);
     var o2 = parseFloat(origvalues[1]);
     // Create a new chart in the elevation_chart DIV.
@@ -150,6 +236,7 @@ $(document).ready(function() {
     }
      // Initiate the path request.
     elevator.getElevationAlongPath(pathRequest, plotElevation);
+    calcRoute(origin, destination);
   }
 
   // Takes an array of ElevationResult objects, draws the path on the map
@@ -164,17 +251,13 @@ $(document).ready(function() {
         elevationPath.push(elevations[i].location);
       }
       // Display a polyline of the elevation path.
-      var pathOptions = {
-          path: elevationPath,
-          strokeColor: '#0000CC',
-          opacity: 0.4,
-          map: map
-      }
-      // polyline = new google.maps.Polyline(pathOptions);
-      // Extract the data from which to populate the chart.
-      // Because the samples are equidistant, the 'Sample'
-      // column here does double duty as distance along the
-      // X axis.
+      // var pathOptions = {
+      //     path: elevationPath,
+      //     strokeColor: '#0000CC',
+      //     opacity: 0.4,
+      //     map: map
+      // }
+
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'Sample');
       data.addColumn('number', 'Elevation');
